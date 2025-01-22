@@ -1,8 +1,8 @@
 package envstruct
 
 import (
-    "envstruct/internal/parsers"
     "errors"
+    "github.com/bobcatalyst/envstruct/internal/parsers"
     "os"
     "reflect"
 )

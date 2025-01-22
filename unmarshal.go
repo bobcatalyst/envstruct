@@ -1,10 +1,10 @@
 package envstruct
 
 import (
-    "envstruct/internal/help"
-    "envstruct/internal/parsers"
     "errors"
     "fmt"
+    "github.com/bobcatalyst/envstruct/internal/help"
+    "github.com/bobcatalyst/envstruct/internal/parsers"
     "github.com/joho/godotenv"
     "iter"
     "reflect"
