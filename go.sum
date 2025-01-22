@@ -1,0 +1,6 @@
+github.com/bobcatalyst/flow v0.2.0 h1:PFp2VOyRTKCDjJ6vmHDl9VogkTEa6vlDZraB8DmYxno=
+github.com/bobcatalyst/flow v0.2.0/go.mod h1:ijnCPOeFmGrjx5AX4Qz0qghfz1LjB+GotiZbFYjZevY=
+github.com/bobcatalyst/subflow v0.0.1 h1:O55AQQ3QaMzTkexCB1Kht2S4Z8Eg67hfNhRtDpJtnuA=
+github.com/bobcatalyst/subflow v0.0.1/go.mod h1:TCk8Pfvx611LzAjCaM7flBXuJo2fZnxRutDSq5Kf5Zc=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
