@@ -1,4 +1,4 @@
-module envstruct
+module github.com/bobcatalyst/envstruct
 
 go 1.23.2
 
