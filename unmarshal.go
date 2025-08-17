@@ -108,7 +108,8 @@ func readTag(dotEnv map[string]string, st reflect.StructField, sv reflect.Value,
             Err:   err,
         }
     }
-    helper.Add(tags.key, tags.help, sv.Type().Name(), tags.def)
+
+    helper.Add(tags.key, tags.help, tags.getTypeName(sv), tags.def)
 
     return func() error {
         value, err := tags.Parse(dotEnv)
@@ -183,10 +184,11 @@ func fieldValid(st reflect.StructField, sv reflect.Value, tag string) bool {
 }
 
 type tagValues struct {
-    key    string
-    help   string
-    parser string
-    def    *string
+    key      string
+    help     string
+    parser   string
+    def      *string
+    typeName *string
 }
 
 func (t *tagValues) Parse(dotEnv map[string]string) (value reflect.Value, err error) {
@@ -197,12 +199,23 @@ func (t *tagValues) Parse(dotEnv map[string]string) (value reflect.Value, err er
     return parser(dotEnv, t.key, t.def)
 }
 
+func (t *tagValues) getTypeName(sv reflect.Value) string {
+    if t.typeName != nil {
+        return *t.typeName
+    }
+    return sv.Type().Name()
+}
+
 func unmarshalTags(tags reflect.StructTag, kind reflect.Kind) (_ *tagValues, err error) {
     t := new(tagValues)
     var ok bool
     if t.parser, ok = tags.Lookup(TagParser); !ok {
         t.parser, err = parserForKind(kind)
     }
+
+    info := parserDataMap[t.parser]
+    t.def = info.def
+    t.typeName = info.typeName
 
     if t.key, ok = tags.Lookup(TagEnv); !ok {
         err = errors.Join(err, &ErrTagNotSet{Name: TagEnv})

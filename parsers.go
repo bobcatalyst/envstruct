@@ -25,12 +25,41 @@ type Default[T any] interface {
     Default() string
 }
 
-var parserMap = map[string]func(dotEnv map[string]string, envKey string, defaultValue *string) (reflect.Value, error){}
+type NamedType[T any] interface {
+    Parser[T]
+    TypeName() string
+}
+
+type parserExtraData struct {
+    def      *string
+    typeName *string
+}
+
+var (
+    parserMap     = map[string]func(dotEnv map[string]string, envKey string, defaultValue *string) (reflect.Value, error){}
+    parserDataMap = map[string]parserExtraData{}
+)
 
 var ErrNotFound = errors.New("env value not found")
 
 func RegisterParser[P Parser[T], T any]() {
-    parserMap[parserName[P, T]()] = parse[P, T]
+    n := parserName[P, T]()
+    parserMap[n] = parse[P, T]
+
+    var p P
+    var extData parserExtraData
+    if def, ok := any(p).(Default[T]); ok {
+        d := def.Default()
+        extData.def = &d
+    }
+    if typeName, ok := any(p).(NamedType[T]); ok {
+        tn := typeName.TypeName()
+        extData.typeName = &tn
+    }
+
+    if extData.def != nil || extData.typeName != nil {
+        parserDataMap[n] = extData
+    }
 }
 
 func parse[P Parser[T], T any](dotEnv map[string]string, envKey string, defaultValue *string) (reflect.Value, error) {
@@ -42,8 +71,6 @@ func parse[P Parser[T], T any](dotEnv map[string]string, envKey string, defaultV
         v = ev
     } else if defaultValue != nil {
         v = *defaultValue
-    } else if def, ok := any(parser).(Default[T]); ok {
-        v = def.Default()
     } else {
         return reflect.Value{}, ErrNotFound
     }

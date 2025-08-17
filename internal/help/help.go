@@ -1,17 +1,16 @@
 package help
 
 import (
-    "maps"
-    "slices"
     "strings"
     "text/tabwriter"
 )
 
 type Help struct {
-    envs map[string]*info
+    envs []*info
 }
 
 type info struct {
+    Key     string
     Type    string
     Help    string
     Default *string
@@ -19,15 +18,12 @@ type info struct {
 
 func (h *Help) Add(key, help, typeName string, def *string) {
     inf := info{
+        Key:     key,
         Type:    typeName,
         Help:    help,
         Default: def,
     }
-
-    if h.envs == nil {
-        h.envs = map[string]*info{}
-    }
-    h.envs[key] = &inf
+    h.envs = append(h.envs, &inf)
 }
 
 func (h *Help) String() string {
@@ -35,13 +31,12 @@ func (h *Help) String() string {
     buf.WriteString("Environment:\n")
     tw := tabwriter.NewWriter(&buf, 0, 0, 2, ' ', 0)
 
-    for key := range slices.Values(slices.Sorted(maps.Keys(h.envs))) {
-        inf := h.envs[key]
+    for _, inf := range h.envs {
         typ := inf.Type
         if typ == "" {
             typ = "UNKNOWN"
         }
-        line := []string{key + ":", "[" + typ + "]"}
+        line := []string{inf.Key + ":", "[" + typ + "]"}
         if inf.Default != nil {
             line = append(line, "(default: "+*inf.Default+")")
         } else {
