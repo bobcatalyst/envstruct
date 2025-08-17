@@ -20,6 +20,11 @@ type Parser[T any] interface {
     Parse(string) (T, error)
 }
 
+type Default[T any] interface {
+    Parser[T]
+    Default() string
+}
+
 var parserMap = map[string]func(dotEnv map[string]string, envKey string, defaultValue *string) (reflect.Value, error){}
 
 var ErrNotFound = errors.New("env value not found")
@@ -30,17 +35,20 @@ func RegisterParser[P Parser[T], T any]() {
 
 func parse[P Parser[T], T any](dotEnv map[string]string, envKey string, defaultValue *string) (reflect.Value, error) {
     var v string
+    var parser P
     if ev, ok := dotEnv[envKey]; ok {
         v = ev
     } else if ev, ok := os.LookupEnv(envKey); ok {
         v = ev
     } else if defaultValue != nil {
         v = *defaultValue
+    } else if def, ok := any(parser).(Default[T]); ok {
+        v = def.Default()
     } else {
         return reflect.Value{}, ErrNotFound
     }
 
-    pv, err := (*new(P)).Parse(v)
+    pv, err := parser.Parse(v)
     if err != nil {
         return reflect.Value{}, err
     }
